@@ -69,20 +69,21 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
         }
 
         const exercise = new Exercise({
-            userId: user._id,
-            description,
-            duration,
-            date,
-        });
-
-        await exercise.save();
-        res.json({
-            _id: exercise.userId,
-            username: user.username,
-            date: exercise.date.toDateString(),
-            duration: exercise.duration,
-            description: exercise.description,
-        });
+          userId: user._id,
+          description,
+          duration,
+          date,
+      });
+      
+      await exercise.save();
+      res.json({
+          _id: exercise.userId,
+          username: user.username,
+          date: exercise.date ? exercise.date.toDateString() : null,
+          duration: exercise.duration,
+          description: exercise.description,
+      });
+      
     } catch (error) {
         console.error(error); // Log the error for debugging
         res.status(500).json({ error: 'Error creating exercise' });
