@@ -61,8 +61,8 @@ app.post('/api/users/:_id/exercises', (req, res) => {
 
   const newExercise = {
     description,
-    duration: parseInt(duration),
-    date: date || new Date().toDateString(),
+    duration: parseInt(duration), // Parse duration as an integer
+    date: date ? new Date(date).toDateString() : new Date().toDateString(), // Format date correctly
   };
 
   if (!user.log) {
@@ -79,6 +79,7 @@ app.post('/api/users/:_id/exercises', (req, res) => {
     description: newExercise.description,
   });
 });
+
 
 
 app.get('/api/users/:_id/logs', (req, res) => {
