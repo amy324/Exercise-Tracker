@@ -1,103 +1,79 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 app.use(cors());
 app.use(express.static('public'));
-app.use(express.json()); // Add this line to parse JSON in the request body
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-// Define the users array to store user data
-const users = [];
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost:27017/exerciseDatabase');
 
-// Helper function to generate a unique user ID
-function generateUserId() {
-  return Math.random().toString(36).substr(2, 9); // Simple implementation for demonstration purposes
-}
+// Define a mongoose schema and model for users
+const userSchema = new mongoose.Schema({
+  username: String,
+});
+const User = mongoose.model('User', userSchema);
 
-// Create a new user
-app.post('/api/users', (req, res) => {
+// Define a mongoose schema and model for exercises
+const exerciseSchema = new mongoose.Schema({
+  userId: String,
+  description: String,
+  duration: Number,
+  date: Date,
+});
+const Exercise = mongoose.model('Exercise', exerciseSchema);
+
+// Serve the HTML file
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/views/index.html');
+});
+
+// Handle user creation
+app.post('/api/users', async (req, res) => {
   const { username } = req.body;
-
-  // Check if the username already exists
-  const isUsernameTaken = users.some(user => user.username === username);
-  if (isUsernameTaken) {
-    return res.json({ error: 'Username already taken' });
+  try {
+    const user = new User({ username });
+    await user.save();
+    res.json({ username: user.username, _id: user._id });
+  } catch (error) {
+    res.status(500).json({ error: 'Error creating user' });
   }
-
-  // Create a new user
-  const newUser = {
-    username,
-    _id: generateUserId(),
-  };
-
-  // Add the user to the array
-  users.push(newUser);
-
-  res.json(newUser); // Updated response
 });
 
-// Get a list of all users
-app.get('/api/users', (req, res) => {
-  res.json(users.map(user => ({ username: user.username, _id: user._id })));
-});
-
-// Add exercises for a user
-app.post('/api/users/:_id/exercises', (req, res) => {
+// Handle exercise creation
+app.post('/api/users/:_id/exercises', async (req, res) => {
   const { _id } = req.params;
   const { description, duration, date } = req.body;
 
-  // Find the user by ID
-  const user = users.find(user => user._id === _id);
+  try {
+    const user = await User.findById(_id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
 
-  // Check if the user exists
-  if (!user) {
-    return res.json({ error: 'User not found' });
+    const exercise = new Exercise({
+      userId: user._id,
+      description,
+      duration,
+      date,
+    });
+
+    await exercise.save();
+    res.json({
+      _id: exercise.userId,
+      username: user.username,
+      date: exercise.date.toDateString(),
+      duration: exercise.duration,
+      description: exercise.description,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Error creating exercise' });
   }
-
-  // Create a new exercise
-  const newExercise = {
-    description,
-    duration: parseInt(duration),
-    date: date ? new Date(date).toDateString() : new Date().toDateString(),
-  };
-
-  // Add the exercise to the user's log
-  if (!user.log) {
-    user.log = [];
-  }
-  user.log.push(newExercise);
-  user.count = user.log.length;
-
-  // Respond with the added exercise
-  res.json({
-    _id: user._id,
-    username: user.username,
-    date: newExercise.date,
-    duration: newExercise.duration,
-    description: newExercise.description,
-  });
-});
-
-// Get a user's exercise log
-app.get('/api/users/:_id/logs', (req, res) => {
-  const { _id } = req.params;
-
-  // Find the user by ID
-  const user = users.find(user => user._id === _id);
-
-  // Check if the user exists
-  if (!user) {
-    return res.json({ error: 'User not found' });
-  }
-
-  // Respond with the user's exercise log
-  res.json({
-    _id: user._id,
-    username: user.username,
-    count: user.count || 0,
-    log: user.log || [],
-  });
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
