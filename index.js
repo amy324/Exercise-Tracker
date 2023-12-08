@@ -24,20 +24,26 @@ function generateUserId() {
 app.post('/api/users', (req, res) => {
   const { username } = req.body;
 
-
-  if (users.some(user => user.username === username)) {
+  // Check if the username already exists
+  const isUsernameTaken = users.some(user => user.username === username);
+  if (isUsernameTaken) {
     return res.json({ error: 'Username already taken' });
   }
 
+  // Create a new user
   const newUser = {
     username,
     _id: generateUserId(),
   };
 
+  // Add the user to the array
   users.push(newUser);
 
-  res.json(newUser); 
+  res.json(newUser);
 });
+
+
+
 
 app.get('/api/users', (req, res) => {
   res.json(users.map(user => ({ username: user.username, _id: user._id })));
@@ -65,8 +71,15 @@ app.post('/api/users/:_id/exercises', (req, res) => {
   user.log.push(newExercise);
   user.count = user.log.length;
 
-  res.json(user); 
+  res.json({
+    _id: user._id,
+    username: user.username,
+    date: newExercise.date,
+    duration: newExercise.duration,
+    description: newExercise.description,
+  });
 });
+
 
 app.get('/api/users/:_id/logs', (req, res) => {
   const { _id } = req.params;
