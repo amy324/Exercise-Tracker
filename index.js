@@ -10,22 +10,23 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// Connect to MongoDB Atlas with SSL/TLS
-// Connect to MongoDB Atlas with SSL/TLS
+// MongoDB connection options
 const options = {
- 
-  ssl: true, // Add this line
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 };
 
-mongoose
-  .connect('mongodb+srv://root:root@cluster0.dqvji0r.mongodb.net/exerciseDatabase', options)
+// MongoDB connection string
+const mongoDBURI = 'mongodb+srv://root:root@cluster0.dqvji0r.mongodb.net/?retryWrites=true&w=majority';
+
+// Connect to MongoDB Atlas
+mongoose.connect(mongoDBURI, options)
   .then(() => {
     console.log('Connected to MongoDB Atlas');
   })
   .catch((err) => {
     console.error('Error connecting to MongoDB Atlas:', err);
   });
-
 
 // Define a mongoose schema and model for users
 const userSchema = new mongoose.Schema({
