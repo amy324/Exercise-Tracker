@@ -11,7 +11,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/exerciseDatabase');
+mongoose.connect('mongodb://localhost:27017/exerciseDatabase', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 // Define a mongoose schema and model for users
 const userSchema = new mongoose.Schema({
@@ -41,6 +44,7 @@ app.post('/api/users', async (req, res) => {
     await user.save();
     res.json({ username: user.username, _id: user._id });
   } catch (error) {
+    console.error(error); // Log the error for debugging
     res.status(500).json({ error: 'Error creating user' });
   }
 });
@@ -72,6 +76,7 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
       description: exercise.description,
     });
   } catch (error) {
+    console.error(error); // Log the error for debugging
     res.status(500).json({ error: 'Error creating exercise' });
   }
 });
