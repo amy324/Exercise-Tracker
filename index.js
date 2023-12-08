@@ -10,11 +10,7 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// MongoDB connection options
-const options = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-};
+
 
 // MongoDB connection string
 const mongoDBURI = 'mongodb+srv://root:root@cluster0.dqvji0r.mongodb.net/?retryWrites=true&w=majority';
