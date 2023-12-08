@@ -11,10 +11,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/exerciseDatabase', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect('mongodb://localhost:27017/exerciseDatabase');
 
 // Define a mongoose schema and model for users
 const userSchema = new mongoose.Schema({
