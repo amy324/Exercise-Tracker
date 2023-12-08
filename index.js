@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 const mongoDBURI = 'mongodb+srv://root:root@cluster0.dqvji0r.mongodb.net/?retryWrites=true&w=majority';
 
 // Connect to MongoDB Atlas
-mongoose.connect(mongoDBURI, options)
+mongoose.connect(mongoDBURI)
   .then(() => {
     console.log('Connected to MongoDB Atlas');
   })
