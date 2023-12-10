@@ -11,7 +11,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // MongoDB connection string
-const mongoDBURI = 'mongodb+srv://root:root@cluster0.dqvji0r.mongodb.net/?retryWrites=true&w=majority';
+const mongoDBURI = process.env.MONGODB_URI;
+
 
 // Connect to MongoDB Atlas
 mongoose.connect(mongoDBURI)
